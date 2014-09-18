@@ -26,7 +26,7 @@ int generatePostOrderedString(TreeNode *root, const char *filename) {
 			fout << temp << endl;
 			++count;
 		}
-		treeString t(temp);
+		TreeString t(temp);
 		i->postOrderedString = t;
 	}
 	fout.close();
@@ -142,7 +142,7 @@ void calcSum(TreeNode *t) {
 	}
 }
 
-int getED(treeString &a, treeString &b, int threshold)
+int getED(TreeString &a, TreeString &b, int threshold)
 {
 	double dis = 0;
 	int len_a = a.length(), len_b = b.length();

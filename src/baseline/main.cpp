@@ -1,6 +1,6 @@
 #include <iostream>
-#include "../tree/tree.h"
-#include "../tree/tString.h"
+#include "../tree/treeNode.h"
+#include "../tree/treeString.h"
 #include "../tree/treeED.h"
 #include <vector>
 #include <cstring>
@@ -17,9 +17,9 @@ int Q = 2;
 
 void addToMap(TreeNode *root)
 {
-	int length = root->postString.length();
+	int length = root->postOrderedString.length();
 	for (int j = 0; j <= length - int(Q); ++j) {
-		string sub = root->postString.substr(j, Q);
+		string sub = root->postOrderedString.substr(j, Q);
 		M[sub] += 1;
 	}
 }
@@ -33,10 +33,10 @@ bool ResultCompare(const pair<int, int> &a, const pair<int, int> &b) {
 }
 
 void addToList(vector<pair<string, int> > &list, TreeNode *root) {
-	int length = root->postString.length();
+	int length = root->postOrderedString.length();
 	if (length >= int(Q)) {
 		for (int j = 0; j <= length - int(Q); ++j) {
-			string sub = root->postString.substr(j, Q);
+			string sub = root->postOrderedString.substr(j, Q);
 			list.push_back(make_pair(sub, j));
 		}
 		sort(list.begin(), list.end(), PairCompare);
@@ -135,15 +135,15 @@ int main(int argc, char **argv) {
 	tree->readFile(argv[1], no);
 	cout << "reading finished" << endl;
 
-	int totalNum = generatePostorderedString(tree, "strings.txt");
+	int totalNum = generatePostOrderedString(tree, "strings.txt");
 	cout << "totalNum = " << totalNum << endl;
 
 	vector<TreeNode*> f;
 	int totalSum = 0;
 	for (int i = 0; i < totalNum; ++i) {
-		f.push_back(tree->child[i]);
-		tree->child[i]->calc();
-		totalSum += tree->child[i]->sum;
+		f.push_back(tree->children[i]);
+		tree->children[i]->calc();
+		totalSum += tree->children[i]->sum;
 		addToMap(f[i]);
 	}
 	cout << "totalSum = " << totalSum << endl;
@@ -158,29 +158,15 @@ int main(int argc, char **argv) {
 		cout << "the result of PassJoin = " << result1.size() << endl;
 		cout << "the time of PassJoin = " << (end - begin) / CLOCKS_PER_SEC << endl;
 		begin = clock();
-		int counter = 0;
 		for (auto & j : result1)
-			if (getED(f[j.first]->postString, f[j.second]->postString, edThreshold) <= edThreshold)
+			if (getED(f[j.first]->postOrderedString, f[j.second]->postOrderedString, edThreshold) <= edThreshold)
 				result2.push_back(make_pair(j.first, j.second));
-			/*
-			else if (counter < 10000) {
-				counter ++;
-				cout << getED(f[j.first]->postString, f[j.second]->postString, edThreshold) + costFunc(f[j.first]->llabel, f[j.second]->llabel);
-				cout << ' ' << f[j.first]->postString.length() << ' ' << f[j.second]->postString.length() << endl;
-				cout << f[j.first]->sum << ' ' << f[j.second]->sum << endl;
-				cout << f[j.first]->label << endl;
-				cout << f[j.first]->postString.ssubstr(0, f[j.first]->postString.length()) << endl;
-				cout << f[j.second]->postString.ssubstr(0, f[j.second]->postString.length()) << endl;
-				cout << f[j.first]->eulerString << endl;
-				cout << f[j.second]->eulerString << endl;
-			}
-			*/
 		end = clock();
 		cout << "the result of String ED = " << result2.size() << endl;
 		cout << "the time of String ED = " << (end - begin) / CLOCKS_PER_SEC << endl;
 		begin = clock();
 		for (auto & j : result2)
-			if (j.first == j.second || treeED(f[j.first], f[j.second], edThreshold) + costFunc(f[j.first]->llabel, f[j.second]->llabel) <= edThreshold)
+			if (j.first == j.second || treeED(f[j.first], f[j.second], edThreshold) + costFunc(f[j.first]->hlabel, f[j.second]->hlabel) <= edThreshold)
 				result.push_back(make_pair(j.first, j.second));
 		end = clock();
 		cout << "the number of the answers = " << result.size() << endl;

@@ -12,7 +12,7 @@ using namespace std;
 class TreeNode {
 public:	
 	string label, eulerString;
-	treeString postOrderedString;
+	TreeString postOrderedString;
 	TreeNode *father;
 	vector<TreeNode*> children;
 	int sum;

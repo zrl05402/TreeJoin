@@ -14,15 +14,15 @@ unsigned int hashFunc(string &s) {
 	return (hash & 0x7FFFFFFF);
 }
 
-class treeString {
+class TreeString {
 public:
 	vector<string> m_str;
 	vector<int> m_hstr;
 
-	treeString() {
+	TreeString() {
 	}
 
-	treeString(string s) {
+	TreeString(string s) {
 		int i = 0;
 		int length = s.length();
 		while (i < length) {
@@ -37,7 +37,7 @@ public:
 			m_hstr.push_back(hashFunc(j));
 	}
 
-	~treeString() {
+	~TreeString() {
 	}
 
 	int length() {
