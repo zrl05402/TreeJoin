@@ -1,5 +1,9 @@
-#include "hashFunc.h"
+#ifndef HASHFUNC_H
+#define HASHFUNC_H
+
 #include <iostream>
+
+using namespace std;
 
 unsigned int hashFunc(string &s) {
 	unsigned int seed = 131;
@@ -8,3 +12,5 @@ unsigned int hashFunc(string &s) {
 		hash = hash * seed + s[i];
 	return (hash & 0x7FFFFFFF);
 }
+
+#endif

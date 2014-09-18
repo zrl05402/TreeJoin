@@ -1,7 +1,7 @@
 #include <iostream>
-#include "tree.h"
-#include "tString.h"
-#include "treeED.h"
+#include "../tree/tree.h"
+#include "../tree/tString.h"
+#include "../tree/treeED.h"
 #include <vector>
 #include <fstream>
 #include <unordered_map>

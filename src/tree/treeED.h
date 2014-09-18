@@ -1,6 +1,8 @@
 #ifndef TREEED_H
 #define TREEED_H
 
+#include "tree.h"
+#include "tString.h"
 #include <cstring>
 #include <map>
 
@@ -177,6 +179,5 @@ int getED(tString &a, tString &b, int threshold)
     dis = d0[len_b];
     return dis;
 }
-
 
 #endif
