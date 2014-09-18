@@ -163,7 +163,7 @@ int getED(tString &a, tString &b, int threshold)
                	d1[j] = i;
         	else 
         	{
-        		if(a.getElement(i - 1) == b.getElement(j - 1))
+        		if(a.get(i - 1) == b.get(j - 1))
                     d1[j] = d0[j - 1];
                 else
                    	d1[j] = d0[j - 1] + 1;

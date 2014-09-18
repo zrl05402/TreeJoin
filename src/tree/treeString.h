@@ -1,22 +1,28 @@
-#ifndef TSTRING_H
-#define TSTRING_H
+#ifndef TREESTRING_H
+#define TREESTRING_H
 
 #include <vector>
 #include <iostream>
-#include "hashFunc.h"
 
 using namespace std;
 
+unsigned int hashFunc(string &s) {
+	unsigned int seed = 131;
+	unsigned int hash = 0;
+	for (int i = 0; i < int(s.length()); ++i)
+		hash = hash * seed + s[i];
+	return (hash & 0x7FFFFFFF);
+}
 
-class tString {
+class treeString {
 public:
 	vector<string> m_str;
 	vector<int> m_hstr;
 
-	tString() {
+	treeString() {
 	}
 
-	tString(string s) {
+	treeString(string s) {
 		int i = 0;
 		int length = s.length();
 		while (i < length) {
@@ -31,7 +37,7 @@ public:
 			m_hstr.push_back(hashFunc(j));
 	}
 
-	~tString() {
+	~treeString() {
 	}
 
 	int length() {
@@ -52,7 +58,7 @@ public:
 		return ret;
 	}
 
-	int getElement(int index) {
+	int get(int index) {
 		return m_hstr[index];
 	}
 };

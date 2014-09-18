@@ -1,6 +1,6 @@
 #include <iostream>
 #include "../tree/tree.h"
-#include "../tree/tString.h"
+#include "../tree/treeString.h"
 #include "../tree/treeED.h"
 #include <vector>
 #include <fstream>

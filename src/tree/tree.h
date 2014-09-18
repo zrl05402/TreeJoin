@@ -1,23 +1,22 @@
 #ifndef TREE_H
 #define TREE_H
 
-#include "tString.h"
+#include "treeString.h"
 #include <vector>
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <cassert>
 
 using namespace std;
 
 class TreeNode {
 public:	
 	string label, eulerString;
-	tString postString;
+	treeString postString;
 	TreeNode *father;
-	vector<TreeNode*> child;
+	vector<TreeNode*> children;
 	int anc, left, right, sum;
-	unsigned int llabel, rank;
+	unsigned int hlabel, rank;
 
 	TreeNode() {
 		father = NULL;
@@ -26,7 +25,7 @@ public:
 
 	TreeNode(string l) {
 		label = l;
-		llabel = hashFunc(label);
+		hlabel = hashFunc(label);
 		father = NULL;
 		anc = left = right = 0;
 	}
@@ -37,12 +36,10 @@ public:
 	TreeNode *read(ifstream &fin, int &no) {
 		string tag;
 		getline(fin, tag);
-		//cout << no++ << "  " << tag << endl;
 		TreeNode *ret = new TreeNode(tag);
 		int n;
 		fin >> n;
 		getline(fin, tag);
-		//cout << no++ << "  " << n << endl;
 		for (int i = 0; i < n; ++i)
 			ret->insertChild(read(fin, no));
 		for (auto & i : ret->child)
@@ -54,12 +51,10 @@ public:
 		ifstream fin(filename);
 		string tag;
 		getline(fin, tag);
-		//cout << no++ << "  " << tag << endl;
 		label = tag;
 		int n;
 		fin >> n;
 		getline(fin, tag);
-		//cout << no++ << "  " << n << endl;
 		for (int i = 0; i < n; ++i) {
 			insertChild(read(fin, no));
 		}
@@ -74,8 +69,8 @@ public:
 
 	TreeNode *deleteRightmostTree() {
 		if (child.empty())
-		return NULL;
-		TreeNode *ret = child.back();
+			return NULL;
+		TreeNode *ret = children.back();
 		child.pop_back();
 		return ret;
 	}
@@ -84,18 +79,18 @@ public:
 		TreeNode *rightmostChild = deleteRightmostTree();
 		if (rightmostChild == NULL)
 			return NULL;
-		for (auto & i : rightmostChild->child)
-			child.push_back(i);
+		for (auto & i : rightmostChild->children)
+			children.push_back(i);
 		return rightmostChild;
 	}
 
-	int getSize() {
-		return child.size();
+	int size() {
+		return children.size();
 	}
 
 	void calcSum() {
 		sum = 0;
-		for (auto & i : child) {
+		for (auto & i : children) {
 			i->calcSum();
 			sum += i->sum;
 		}
@@ -104,7 +99,7 @@ public:
 
 	void calcEulerString() {
 		eulerString = label;
-		for (auto & i : child) {
+		for (auto & i : children) {
 			i->calcEulerString();
 			if (i->eulerString != "")
 				eulerString += "$" + i->eulerString;
@@ -112,33 +107,15 @@ public:
 		eulerString += "$" + label;
 	}
 
-	void calcALR() {
-		for (int i = 0; i < int(child.size()); ++i) {
-			child[i]->anc = anc + 1;
-			if (i > 0)
-				child[i]->left += child[i - 1]->left + child[i - 1]->sum;
-			else
-				child[i]->left = left;
-		}
-		for (int i = int(child.size()) - 1; i >= 0; --i) {
-			if (i + 1 < int(child.size()))
-				child[i]->right = child[i + 1]->right + child[i + 1]->sum;
-			else
-				child[i]->right = right;
-			child[i]->calcALR();
-		}
-	}
-
 	void calcRank(unsigned int &r) {
 		rank = r++;
-		for (auto & i : child) {
+		for (auto & i : children) {
 			i->calcRank(r);
 		}
 	}
 
 	void calc() {
 		calcSum();
-		calcALR();
 		unsigned int r = 0;
 		calcRank(r);
 		calcEulerString();
