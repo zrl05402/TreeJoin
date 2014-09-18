@@ -12,22 +12,20 @@ using namespace std;
 class TreeNode {
 public:	
 	string label, eulerString;
-	treeString postString;
+	treeString postOrderedString;
 	TreeNode *father;
 	vector<TreeNode*> children;
-	int anc, left, right, sum;
+	int sum;
 	unsigned int hlabel, rank;
 
 	TreeNode() {
 		father = NULL;
-		anc = left = right = 0;
 	}
 
 	TreeNode(string l) {
 		label = l;
 		hlabel = hashFunc(label);
 		father = NULL;
-		anc = left = right = 0;
 	}
 
 	~TreeNode() {
@@ -42,7 +40,7 @@ public:
 		getline(fin, tag);
 		for (int i = 0; i < n; ++i)
 			ret->insertChild(read(fin, no));
-		for (auto & i : ret->child)
+		for (auto & i : ret->children)
 			i->father = ret;
 		return ret;
 	}
@@ -58,20 +56,20 @@ public:
 		for (int i = 0; i < n; ++i) {
 			insertChild(read(fin, no));
 		}
-		for (auto & i : child)
+		for (auto & i : children)
 			i->father = this;
 	}
 
 	bool insertChild(TreeNode *c) {
-		child.push_back(c);
+		children.push_back(c);
 		return true;
 	}
 
 	TreeNode *deleteRightmostTree() {
-		if (child.empty())
+		if (children.empty())
 			return NULL;
 		TreeNode *ret = children.back();
-		child.pop_back();
+		children.pop_back();
 		return ret;
 	}
 

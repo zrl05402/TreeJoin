@@ -1,17 +1,17 @@
 #ifndef TREEED_H
 #define TREEED_H
 
-#include "tree.h"
-#include "tString.h"
+#include "treeNode.h"
+#include "treeString.h"
 #include <cstring>
 #include <map>
 
 #define LIMIT 20
 
-string getPostorderedString(TreeNode *root) {
+string getPostOrderedString(TreeNode *root) {
 	string ret = "";
-	for (auto & i : root->child)
-		ret.append(getPostorderedString(i) + "$");
+	for (auto & i : root->children)
+		ret.append(getPostOrderedString(i) + "$");
 	ret.append(root->label);
 	return ret;
 }
@@ -20,14 +20,14 @@ int generatePostorderedString(TreeNode *root, const char *filename) {
 	cout << "start generating postordered string" << endl;
 	ofstream fout(filename);
 	int count = 0;
-	for (auto & i : root->child) {
-		string temp = getPostorderedString(i);
+	for (auto & i : root->children) {
+		string temp = getPostOrderedString(i);
 		if (temp != "" && temp[0] != '$') {
 			fout << temp << endl;
 			++count;
 		}
-		tString t(temp);
-		i->postString = t;
+		treeString t(temp);
+		i->postOrderedString = t;
 	}
 	fout.close();
 	cout << "generating finished" << endl;
@@ -93,35 +93,35 @@ int dfs(TreeNode *f1, TreeNode *f2, int **ans, int **ted, int sum1, int sum2, in
 		return ans[sum1][sum2];
 	if (threshold < 0)
 		return LIMIT + 1;
-	if (f1->getSize() == 0 || f2->getSize() == 0)
-		return max(f1->getSize(), f2->getSize());
+	if (f1->size() == 0 || f2->size() == 0)
+		return max(f1->size(), f2->size());
 	if (abs(f1->sum - sum1 - f2->sum + sum2) > threshold)
 		return LIMIT + 1;
 	int ret = LIMIT + 1;
 	//cout << "0" << endl;
-	if (f1->getSize() > 0) {
-		int temp = f1->getSize();
+	if (f1->size() > 0) {
+		int temp = f1->size();
 		TreeNode *v = f1->deleteRightmostChild();
-		ret = min(ret, dfs(f1, f2, ans, ted, sum1 + 1, sum2, threshold - costFunc(v->llabel, 0)) + costFunc(v->llabel, 0));
-		while (f1->getSize() > temp - 1)
+		ret = min(ret, dfs(f1, f2, ans, ted, sum1 + 1, sum2, threshold - costFunc(v->hlabel, 0)) + costFunc(v->hlabel, 0));
+		while (f1->size() > temp - 1)
 			f1->deleteRightmostTree();
 		f1->insertChild(v);
 	}
 	//cout << "1" << endl;
-	if (f2->getSize() > 0) {
-		int temp = f2->getSize();
+	if (f2->size() > 0) {
+		int temp = f2->size();
 		TreeNode *w = f2->deleteRightmostChild();
-		ret = min(ret, dfs(f1, f2, ans, ted, sum1, sum2 + 1, threshold- costFunc(0, w->llabel)) + costFunc(0, w->llabel));
-		while (f2->getSize() > temp - 1)
+		ret = min(ret, dfs(f1, f2, ans, ted, sum1, sum2 + 1, threshold- costFunc(0, w->hlabel)) + costFunc(0, w->hlabel));
+		while (f2->size() > temp - 1)
 			f2->deleteRightmostTree();
 		f2->insertChild(w);
 	}
 	//cout << "2" << endl;
-	if (f1->getSize() > 0 && f2->getSize() > 0) {
+	if (f1->size() > 0 && f2->size() > 0) {
 		TreeNode *v = f1->deleteRightmostTree();
 		TreeNode *w = f2->deleteRightmostTree();
 		int distance = TED(v, w, ted, threshold);
-		ret = min(ret, distance + dfs(f1, f2, ans, ted, sum1 + v->sum, sum2 + w->sum, threshold - distance - costFunc(v->llabel, w->llabel)) + costFunc(v->llabel, w->llabel));
+		ret = min(ret, distance + dfs(f1, f2, ans, ted, sum1 + v->sum, sum2 + w->sum, threshold - distance - costFunc(v->hlabel, w->hlabel)) + costFunc(v->hlabel, w->hlabel));
 		f1->insertChild(v);
 		f2->insertChild(w);
 	}
@@ -131,7 +131,7 @@ int dfs(TreeNode *f1, TreeNode *f2, int **ans, int **ted, int sum1, int sum2, in
 
 void calcSum(TreeNode *t) {
 	map<int, int> m;
-	for (auto & i : t->child) {
+	for (auto & i : t->children) {
 		m[i->sum] += 1;
 	}
 	for (auto & j : m) {
@@ -142,7 +142,7 @@ void calcSum(TreeNode *t) {
 	}
 }
 
-int getED(tString &a, tString &b, int threshold)
+int getED(treeString &a, treeString &b, int threshold)
 {
 	double dis = 0;
 	int len_a = a.length(), len_b = b.length();

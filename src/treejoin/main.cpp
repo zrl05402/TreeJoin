@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../tree/tree.h"
+#include "../tree/treeNode.h"
 #include "../tree/treeString.h"
 #include "../tree/treeED.h"
 #include <vector>
@@ -14,7 +14,7 @@ unordered_map<string, int> M;
 
 void addToMap(TreeNode *root) {
 	M[root->eulerString] += 1;
-	for (auto & i : root->child)
+	for (auto & i : root->children)
 		addToMap(i);
 }
 
