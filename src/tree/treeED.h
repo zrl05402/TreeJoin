@@ -16,7 +16,7 @@ string getPostOrderedString(TreeNode *root) {
 	return ret;
 }
 
-int generatePostorderedString(TreeNode *root, const char *filename) {
+int generatePostOrderedString(TreeNode *root, const char *filename) {
 	cout << "start generating postordered string" << endl;
 	ofstream fout(filename);
 	int count = 0;

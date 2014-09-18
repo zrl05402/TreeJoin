@@ -1,12 +1,12 @@
-main.o: main.cpp ../tree/tree.h ../tree/tString.h ../tree/tString.h \
- ../tree/treeED.h ../tree/tree.h
+main.o: main.cpp ../tree/treeNode.h ../tree/treeString.h \
+ ../tree/treeString.h ../tree/treeED.h ../tree/treeNode.h
 
-../tree/tree.h:
+../tree/treeNode.h:
 
-../tree/tString.h:
+../tree/treeString.h:
 
-../tree/tString.h:
+../tree/treeString.h:
 
 ../tree/treeED.h:
 
-../tree/tree.h:
+../tree/treeNode.h:
