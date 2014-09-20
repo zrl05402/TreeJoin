@@ -6,32 +6,17 @@
 #include <cstring>
 #include <map>
 
-#define LIMIT 20
-
-string getPostOrderedString(TreeNode *root) {
-	string ret = "";
-	for (auto & i : root->children)
-		ret.append(getPostOrderedString(i) + "$");
-	ret.append(root->label);
-	return ret;
-}
+#define LIMIT 30
 
 int generatePostOrderedString(TreeNode *root, const char *filename) {
 	cout << "start generating postordered string" << endl;
 	ofstream fout(filename);
-	int count = 0;
 	for (auto & i : root->children) {
-		string temp = getPostOrderedString(i);
-		if (temp != "" && temp[0] != '$') {
-			fout << temp << endl;
-			++count;
-		}
-		TreeString t(temp);
-		i->postOrderedString = t;
+		i->calcPostOrderedString();
 	}
 	fout.close();
 	cout << "generating finished" << endl;
-	return count;
+	return root->size();
 }
 
 int costFunc(const unsigned int &a, const unsigned int &b) {

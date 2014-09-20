@@ -13,7 +13,8 @@ using namespace std;
 unordered_map<string, int> M;
 
 void addToMap(TreeNode *root) {
-	M[root->eulerString] += 1;
+	for (auto & i : root->eulerString)
+		M[root->eulerString] += 1;
 	for (auto & i : root->children)
 		addToMap(i);
 }
@@ -68,12 +69,10 @@ void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 		vector<int> candidates;
 		unordered_map<int, bool> isDup;
 		if (num < threshold + 1) {
-			/*
-			for (int j = 0; j <= i; ++j)
-				if (disjoin[j] == 0 && abs(int(f[j]->postString.length()) - int(f[i]->postString.length())) < threshold) {
+			for (int j = 0; j < i; ++j)
+				if (disjoin[j] == 0 && abs(int(f[j]->postOrderedString.length()) - int(f[i]->postOrderedString.length())) < threshold) {
 					candidates.push_back(j);
 				}
-			*/
 		}
 		else {
 			disjoin[i] = 1;
@@ -93,7 +92,6 @@ void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 						}
 					}
 				//}
-			candidates.push_back(i);
 		}
 		for (auto & j : candidates) {
 			result.push_back(make_pair(i, j));
@@ -129,27 +127,24 @@ int main(int argc, char **argv) {
 		return 0;
 	}
 	cout << "reading..." << endl;
-	TreeNode *tree = new TreeNode();
-	int no = 1;
-	tree->readFile(argv[1], no);
+	TreeNode *root = readFile(argv[1]);
 	cout << "reading finished" << endl;
 
-	int totalNum = generatePostOrderedString(tree, "strings.txt");
+	int totalNum = generatePostOrderedString(root, "strings.txt");
 	cout << "totalNum = " << totalNum << endl;
 
 	vector<TreeNode*> f;
 	int totalSum = 0;
 	for (int i = 0; i < totalNum; ++i) {
-		f.push_back(tree->children[i]);
-		tree->children[i]->calc();
-		totalSum += tree->children[i]->sum;
+		f.push_back(root->children[i]);
+		root->children[i]->calc();
+		totalSum += root->children[i]->sum;
 		addToMap(f[i]);
 	}
 	cout << "totalSum = " << totalSum << endl;
 
 	//calcSum(tree);
 
-	
 	for (int i = 1; i <= 15; ++i) {
 		int edThreshold = i;
 		vector<pair<int, int> > result1, result2, result;

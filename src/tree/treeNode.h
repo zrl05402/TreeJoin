@@ -6,15 +6,17 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <cassert>
 
 using namespace std;
 
 class TreeNode {
 public:	
-	string label, eulerString;
+	string label;
 	TreeString postOrderedString;
 	TreeNode *father;
 	vector<TreeNode*> children;
+	vector<string> eulerString;
 	int sum;
 	unsigned int hlabel, rank;
 
@@ -29,35 +31,6 @@ public:
 	}
 
 	~TreeNode() {
-	}
-
-	TreeNode *read(ifstream &fin, int &no) {
-		string tag;
-		getline(fin, tag);
-		TreeNode *ret = new TreeNode(tag);
-		int n;
-		fin >> n;
-		getline(fin, tag);
-		for (int i = 0; i < n; ++i)
-			ret->insertChild(read(fin, no));
-		for (auto & i : ret->children)
-			i->father = ret;
-		return ret;
-	}
-
-	void readFile(char *filename, int &no) {
-		ifstream fin(filename);
-		string tag;
-		getline(fin, tag);
-		label = tag;
-		int n;
-		fin >> n;
-		getline(fin, tag);
-		for (int i = 0; i < n; ++i) {
-			insertChild(read(fin, no));
-		}
-		for (auto & i : children)
-			i->father = this;
 	}
 
 	bool insertChild(TreeNode *c) {
@@ -96,13 +69,21 @@ public:
 	}
 
 	void calcEulerString() {
-		eulerString = label;
+		eulerString.push_back(label);
+		int step = 0;
 		for (auto & i : children) {
 			i->calcEulerString();
-			if (i->eulerString != "")
-				eulerString += "$" + i->eulerString;
+			step = max(step, i->eulerString.size());
 		}
-		eulerString += "$" + label;
+		for (int i = 0; i < step; ++i) {
+			string tmp = label;
+			for (auto & j : children) 
+				if (j->eulerString.size() > i)
+					tmp += "$" + j->eulerString[i];
+				else 
+					tmp += "$" + j->eulerString[j->eulerString.size() - 1];
+			eulerString.push_back(tmp);
+		}
 	}
 
 	void calcRank(unsigned int &r) {
@@ -112,6 +93,16 @@ public:
 		}
 	}
 
+	void calcPostOrderedString() {
+		string ret = "";
+		for (auto & i : children) {
+			i->calcPostOrderedString();
+			ret.append(i->postOrderedString.get() + "$");
+		}
+		ret.append(label);
+		postOrderedString = TreeString(ret);
+	}
+
 	void calc() {
 		calcSum();
 		unsigned int r = 0;
@@ -119,5 +110,28 @@ public:
 		calcEulerString();
 	}
 };
+
+TreeNode *read(ifstream &fin) {
+	string tag;
+	getline(fin, tag);
+	TreeNode *ret = new TreeNode(tag);
+	getline(fin, tag);
+	int n = atoi(tag.c_str());
+	if (n > 0) {
+		for (int i = 0; i < n; ++i)
+			ret->insertChild(read(fin));
+	} else {
+		getline(fin, tag);
+		ret->insertChild(new TreeNode(tag));
+	}
+	for (auto & i : ret->children)
+		i->father = ret;
+	return ret;
+}
+
+TreeNode* readFile(char *filename) {
+	ifstream fin(filename);
+	return read(fin);
+}
 
 #endif

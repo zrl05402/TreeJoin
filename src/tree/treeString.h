@@ -58,6 +58,10 @@ public:
 		return ret;
 	}
 
+	string get() {
+		return ssubstr(0, m_str.size());
+	}
+
 	int get(int index) {
 		return m_hstr[index];
 	}
