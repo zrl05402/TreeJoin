@@ -14,13 +14,14 @@ unordered_map<string, int> M;
 
 void addToMap(TreeNode *root) {
 	for (auto & i : root->eulerString)
-		M[root->eulerString] += 1;
+		M[i] += 1;
 	for (auto & i : root->children)
 		addToMap(i);
 }
 
 void addToList(vector<pair<TreeNode*, int> > &list, TreeNode *root) {
-	list.push_back(make_pair(root, M[root->eulerString]));
+	for (auto & i : root->eulerString)
+		list.push_back(make_pair(root, M[i]));
 	for (auto & i : root->children)
 		addToList(list, i);
 }

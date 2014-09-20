@@ -28,10 +28,6 @@ bool PairCompare(const pair<string, int> &a, const pair<string, int> &b) {
 	return M[a.first] == M[b.first]?a.first < b.first: M[a.first] < M[b.first];
 }
 
-bool ResultCompare(const pair<int, int> &a, const pair<int, int> &b) {
-	return a.first == b.first ? a.second < b.second : a.first < b.first;
-}
-
 void addToList(vector<pair<string, int> > &list, TreeNode *root) {
 	int length = root->postOrderedString.length();
 	if (length >= int(Q)) {
@@ -130,9 +126,7 @@ int main(int argc, char **argv) {
 		return 0;
 	}
 	cout << "reading..." << endl;
-	TreeNode *tree = new TreeNode();
-	int no = 0;
-	tree->readFile(argv[1], no);
+	TreeNode *tree = readFile(argv[1]);
 	cout << "reading finished" << endl;
 
 	int totalNum = generatePostOrderedString(tree, "strings.txt");

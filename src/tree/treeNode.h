@@ -73,12 +73,12 @@ public:
 		int step = 0;
 		for (auto & i : children) {
 			i->calcEulerString();
-			step = max(step, i->eulerString.size());
+			step = max(step, int(i->eulerString.size()));
 		}
 		for (int i = 0; i < step; ++i) {
 			string tmp = label;
 			for (auto & j : children) 
-				if (j->eulerString.size() > i)
+				if (int(j->eulerString.size()) > i)
 					tmp += "$" + j->eulerString[i];
 				else 
 					tmp += "$" + j->eulerString[j->eulerString.size() - 1];
