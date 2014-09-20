@@ -29,10 +29,6 @@ bool PairCompare(const pair<TreeNode*, int> &a, const pair<TreeNode*, int> &b) {
 	return a.second == b.second ? (a.first)->eulerString.length() > (b.first)->eulerString.length() : a.second < b.second;
 }
 
-bool ResultCompare(const pair<int, int> &a, const pair<int, int> &b) {
-	return a.first == b.first ? a.second < b.second : a.first < b.first;
-}
-
 void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &result) {
 	result.clear();
 	int n = f.size();
@@ -46,8 +42,6 @@ void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 
 		//get the prefix
 		int m = list.size(), num = 1;
-		vector<int> flag(m, 0);
-		flag[0] = 1;
 		int k;
 		for (k = 1; k < m; ++k) {
 			if (num == threshold + 1)
@@ -117,7 +111,6 @@ void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 			L[(list[j].first)->eulerString].push_back(i);
 		}
 	}
-	//sort(result.begin(), result.end(), ResultCompare);
 }
 
 int main(int argc, char **argv) {
