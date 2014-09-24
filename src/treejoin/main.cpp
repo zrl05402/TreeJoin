@@ -6,11 +6,12 @@
 #include <fstream>
 #include <unordered_map>
 #include <algorithm>
+#include <queue>
 #include <cassert>
 
 using namespace std;
 
-unordered_map<int, int> M;
+unordered_map<unsigned int, int> M;
 
 void addToMap(TreeNode *root) {
 	for (auto & i : root->eulerString)
@@ -46,14 +47,14 @@ int findOverlapNodes(vector<pair<TreeNode*, int> > &list, int n) {
 	for (int i = 0; i < n; ++i) {
 		addToMap2(mm, list[i].first, list[i].second);
 	}
-	
+
 	return 1;
 }
 
 void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &result) {
 	result.clear();
 	int n = f.size();
-	unordered_map<int, vector<int> > L;
+	unordered_map<unsigned int, vector<int> > L;
 	for (int i = 0; i < n; ++i) {
 		// nodes are less than threshold + 1
 		if (f[i]->sum < threshold + 1) {
