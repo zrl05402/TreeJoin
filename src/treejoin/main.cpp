@@ -32,22 +32,21 @@ bool PairCompare(const pair<TreeNode*, int> &a, const pair<TreeNode*, int> &b) {
 	return ma == mb ? ((a.first)->eulerString[a.second]).second < ((b.first)->eulerString[b.second]).second : ma < mb;
 }
 
-void addToMap2(unordered_map<int, int> &m, TreeNode *root, int step) {
+void modifyMap(unordered_map<int, int> &m, TreeNode *root, int step, int delta) {
 	if (step < 0)
 		return;
-	mm[root->rank] += 1;
+	mm[root->rank] += delta;
 	for (int i = 0; i <= step; ++i) {
 		for (auto & j : root->children)
-			addToMap2(m, j, step - 1);
+			addOne(m, j, step - 1, delta);
 	}
 }
 
 int findOverlapNodes(vector<pair<TreeNode*, int> > &list, int n) {
 	unordered_map<int, int> m;
 	for (int i = 0; i < n; ++i) {
-		addToMap2(mm, list[i].first, list[i].second);
+		modifyMap(mm, list[i].first, list[i].second, 1);
 	}
-
 	return 1;
 }
 
