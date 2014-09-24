@@ -12,7 +12,7 @@ $(TARGET): $(SRC:.cpp=.o)
 -include $(SRC:.cpp=.d)
 
 clean:
-	$(RM) *.o *.d $(TARGET)
+	$(RM) *.o *.d *.txt $(TARGET)
 
 .PHONY: all clean
 
