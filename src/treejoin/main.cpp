@@ -10,106 +10,103 @@
 
 using namespace std;
 
-unordered_map<string, int> M;
+unordered_map<int, int> M;
 
 void addToMap(TreeNode *root) {
 	for (auto & i : root->eulerString)
-		M[i] += 1;
+		M[i.second] += 1;
 	for (auto & i : root->children)
 		addToMap(i);
 }
 
 void addToList(vector<pair<TreeNode*, int> > &list, TreeNode *root) {
-	for (auto & i : root->eulerString)
-		list.push_back(make_pair(root, M[i]));
+	for (int i = 0; i < int(root->eulerString.size()); ++i)
+		list.push_back(make_pair(root, i));
 	for (auto & i : root->children)
 		addToList(list, i);
 }
 
 bool PairCompare(const pair<TreeNode*, int> &a, const pair<TreeNode*, int> &b) {
-	return a.second == b.second ? (a.first)->eulerString.length() > (b.first)->eulerString.length() : a.second < b.second;
+	int ma = M[((a.first)->eulerString[a.second]).second], mb = M[((b.first)->eulerString[b.second]).second];
+	return ma == mb ? ((a.first)->eulerString[a.second]).second < ((b.first)->eulerString[b.second]).second : ma < mb;
+}
+
+void addToMap2(unordered_map<int, int> &m, TreeNode *root, int step) {
+	if (step < 0)
+		return;
+	mm[root->rank] += 1;
+	for (int i = 0; i <= step; ++i) {
+		for (auto & j : root->children)
+			addToMap2(m, j, step - 1);
+	}
+}
+
+int findOverlapNodes(vector<pair<TreeNode*, int> > &list, int n) {
+	unordered_map<int, int> m;
+	for (int i = 0; i < n; ++i) {
+		addToMap2(mm, list[i].first, list[i].second);
+	}
+	
+	return 1;
 }
 
 void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &result) {
 	result.clear();
 	int n = f.size();
-	unordered_map<string, vector<int> > L;
-	vector<int> disjoin(n, 0);
+	unordered_map<int, vector<int> > L;
 	for (int i = 0; i < n; ++i) {
-		//get the list
+		// nodes are less than threshold + 1
+		if (f[i]->sum < threshold + 1) {
+			for (int j = 0; j < i; ++j)
+				if (abs(int(f[j]->postOrderedString.length()) - int(f[i]->postOrderedString.length())) < threshold) {
+					result.push_back(make_pair(i, j));
+				}
+			continue;
+		}
+
+		// get the list
 		vector<pair<TreeNode*, int> > list;
 		addToList(list, f[i]);
 		sort(list.begin(), list.end(), PairCompare);
 
 		//get the prefix
-		int m = list.size(), num = 1;
-		int k;
-		for (k = 1; k < m; ++k) {
-			if (num == threshold + 1)
-				break;
-			flag[k] = 1;
-			for (int j = 0; j < k; ++j)
-				if (list[j].first == (list[k].first)->father) {
-					if (flag[j] == 1) {
-						flag[j] = 0;
-					}
-					else {
-						++num;
-					}
-					break;
-				}
+		int l = 1, r = int(list.size()), m = 0;
+		while (l < r) {
+			m = (l + r) >> 1;
+			if (findOverlapNodes(list, m) >= threshold + 1) {
+				r = m - 1;
+			} else {
+				l = m + 1;
+			}
 		}
 
 		//get the candidates
 		vector<int> candidates;
 		unordered_map<int, bool> isDup;
-		if (num < threshold + 1) {
-			for (int j = 0; j < i; ++j)
-				if (disjoin[j] == 0 && abs(int(f[j]->postOrderedString.length()) - int(f[i]->postOrderedString.length())) < threshold) {
-					candidates.push_back(j);
-				}
-		}
-		else {
-			disjoin[i] = 1;
-			for (int j = 0; j < k; ++j)
-				//if (flag[j] == 1) {
-					if (L.find((list[j].first)->eulerString) != L.end()) {
-						for (auto & l : L[(list[j].first)->eulerString]) {
-							//some pruning techniques
-							//PRUNING 1
-	 						if (isDup.find(l) == isDup.end()) {
-	 							if (abs(int(f[l]->postOrderedString.length()) - int(f[i]->postOrderedString.length())) < threshold) {
-									candidates.push_back(l);
-								}
-								isDup[l] = true;
-							}
-							//PRUNING 2
+		int k = l;
+		for (int j = 0; j < k; ++j) {
+			if (L.find(((list[j].first)->eulerString[list[j].second]).second) != L.end()) {
+				for (auto & l : L[((list[j].first)->eulerString[list[j].second]).second]) {
+	 				if (isDup.find(l) == isDup.end()) {
+	 					if (abs(int(f[l]->postOrderedString.length()) - int(f[i]->postOrderedString.length())) < threshold) {
+							candidates.push_back(l);
 						}
+						isDup[l] = true;
 					}
-				//}
+				}
+			}
 		}
 		for (auto & j : candidates) {
 			result.push_back(make_pair(i, j));
 		}
 
-		//verification
-		/*
-		for (auto & j : candidates) {
-			if (treeED(f[i], ff[j]) <= threshold) {
-				result.push_back(make_pair(i, j));
-				if (i != j)
-					result.push_back(make_pair(j, i));
-			}
-		}
-		*/
-
 		//indexing all the prefix
 		for (int j = 0; j < k; ++j) {
-			if (L.find((list[j].first)->eulerString) == L.end()) {
+			if (L.find(((list[j].first)->eulerString[list[j].second]).second) == L.end()) {
 				vector<int> temp;
-				L[(list[j].first)->eulerString] = temp;
+				L[((list[j].first)->eulerString[list[j].second]).second] = temp;
 			}
-			L[(list[j].first)->eulerString].push_back(i);
+			L[((list[j].first)->eulerString[list[j].second]).second].push_back(i);
 		}
 	}
 }

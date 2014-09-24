@@ -16,7 +16,7 @@ public:
 	TreeString postOrderedString;
 	TreeNode *father;
 	vector<TreeNode*> children;
-	vector<string> eulerString;
+	vector<pair<string, unsigned int> > eulerString;
 	int sum;
 	unsigned int hlabel, rank;
 
@@ -69,7 +69,7 @@ public:
 	}
 
 	void calcEulerString() {
-		eulerString.push_back(label);
+		eulerString.push_back(make_pair(label, hashFunc(label)));
 		int step = 0;
 		for (auto & i : children) {
 			i->calcEulerString();
@@ -79,10 +79,10 @@ public:
 			string tmp = label;
 			for (auto & j : children) 
 				if (int(j->eulerString.size()) > i)
-					tmp += "$" + j->eulerString[i];
+					tmp += "$" + j->eulerString[i].first;
 				else 
-					tmp += "$" + j->eulerString[j->eulerString.size() - 1];
-			eulerString.push_back(tmp);
+					tmp += "$" + j->eulerString[j->eulerString.size() - 1].first;
+			eulerString.push_back(make_pair(tmp, hashFunc(tmp)));
 		}
 	}
 
