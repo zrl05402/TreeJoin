@@ -5,17 +5,20 @@
 #include <vector>
 #include <fstream>
 #include <unordered_map>
+#include <unordered_set>
 #include <algorithm>
 #include <queue>
 #include <cassert>
 
 using namespace std;
 
-unordered_map<unsigned int, int> M;
+unordered_map<unsigned int, int> FM;
+unordered_map<unsigned int, unordered_set<unsigned int> > NM;
+unordered_map<unsigned int, unordered_set<unsigned int> > LM;
 
 void addToMap(TreeNode *root) {
 	for (auto & i : root->eulerString)
-		M[i.second] += 1;
+		FM[i.second] += 1;
 	for (auto & i : root->children)
 		addToMap(i);
 }
@@ -27,30 +30,53 @@ void addToList(vector<pair<TreeNode*, int> > &list, TreeNode *root) {
 		addToList(list, i);
 }
 
-bool PairCompare(const pair<TreeNode*, int> &a, const pair<TreeNode*, int> &b) {
-	int ma = M[((a.first)->eulerString[a.second]).second], mb = M[((b.first)->eulerString[b.second]).second];
+bool FrequencyCompare(const pair<TreeNode*, int> &a, const pair<TreeNode*, int> &b) {
+	int ma = FM[((a.first)->eulerString[a.second]).second], mb = FM[((b.first)->eulerString[b.second]).second];
 	return ma == mb ? ((a.first)->eulerString[a.second]).second < ((b.first)->eulerString[b.second]).second : ma < mb;
 }
 
-void modifyMap(unordered_map<int, int> &m, TreeNode *root, int step, int delta) {
+bool NodeCompare(const unsigned int a, const unsigned int b) {
+	return NM[a].size() < NM[b].size();
+}
+
+void pushToMap(TreeNode *root, int step, int index) {
 	if (step < 0)
 		return;
-	mm[root->rank] += delta;
+	NM[root->rank].insert(index);
+	LM[index].insert(root->rank);
 	for (int i = 0; i <= step; ++i) {
 		for (auto & j : root->children)
-			addOne(m, j, step - 1, delta);
+			pushToMap(j, step - 1, index);
 	}
 }
 
-int findOverlapNodes(vector<pair<TreeNode*, int> > &list, int n) {
-	unordered_map<int, int> m;
+int findOverlapNodes(vector<pair<TreeNode*, int> > &list, int n, int threshold) {
+	NM.clear();
+	LM.clear();
 	for (int i = 0; i < n; ++i) {
-		modifyMap(mm, list[i].first, list[i].second, 1);
+		pushToMap(list[i].first, list[i].second, i);
 	}
-	return 1;
+
+	vector<unsigned int> v; 
+	for (auto & i : NM)
+		v.push_back(i.first);
+
+	int ret = 0, counter = 0;
+	while (ret < threshold + 1 || counter < n) {
+		sort(v.begin(), v.end(), NodeCompare);
+		for (auto & i : NM[v[v.size() - 1]]) {
+			for (auto & j : LM[i])
+				NM[j].erase(i);
+			++counter;
+		}
+		v.pop_back();
+		++ret;
+	}
+	return ret;
 }
 
 void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &result) {
+	FM.clear();
 	result.clear();
 	int n = f.size();
 	unordered_map<unsigned int, vector<int> > L;
@@ -67,13 +93,13 @@ void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 		// get the list
 		vector<pair<TreeNode*, int> > list;
 		addToList(list, f[i]);
-		sort(list.begin(), list.end(), PairCompare);
+		sort(list.begin(), list.end(), FrequencyCompare);
 
 		//get the prefix
 		int l = 1, r = int(list.size()), m = 0;
 		while (l < r) {
 			m = (l + r) >> 1;
-			if (findOverlapNodes(list, m) >= threshold + 1) {
+			if (findOverlapNodes(list, m, threshold) >= threshold + 1) {
 				r = m - 1;
 			} else {
 				l = m + 1;
