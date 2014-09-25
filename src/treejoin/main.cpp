@@ -44,10 +44,8 @@ void pushToMap(TreeNode *root, int step, int index) {
 		return;
 	NM[root->rank].insert(index);
 	LM[index].insert(root->rank);
-	for (int i = 0; i <= step; ++i) {
-		for (auto & j : root->children)
-			pushToMap(j, step - 1, index);
-	}
+	for (auto & j : root->children)
+		pushToMap(j, step - 1, index);
 }
 
 int findOverlapNodes(vector<pair<TreeNode*, int> > &list, int n, int threshold) {
@@ -62,11 +60,13 @@ int findOverlapNodes(vector<pair<TreeNode*, int> > &list, int n, int threshold) 
 		v.push_back(i.first);
 
 	int ret = 0, counter = 0;
-	while (ret < threshold + 1 || counter < n) {
+	while (!v.empty() && ret < threshold + 1 && counter < n) {
 		sort(v.begin(), v.end(), NodeCompare);
 		for (auto & i : NM[v[v.size() - 1]]) {
-			for (auto & j : LM[i])
-				NM[j].erase(i);
+			for (auto & j : LM[i]) {
+				if (j != v[v.size() - 1])
+					NM[j].erase(i);
+			}
 			++counter;
 		}
 		v.pop_back();
@@ -81,6 +81,7 @@ void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 	int n = f.size();
 	unordered_map<unsigned int, vector<int> > L;
 	for (int i = 0; i < n; ++i) {
+		cout << i << endl;
 		// nodes are less than threshold + 1
 		if (f[i]->sum < threshold + 1) {
 			for (int j = 0; j < i; ++j)
@@ -97,13 +98,14 @@ void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 
 		//get the prefix
 		int l = 1, r = int(list.size()), m = 0;
-		while (l < r) {
+		while (l <= r) {
 			m = (l + r) >> 1;
 			if (findOverlapNodes(list, m, threshold) >= threshold + 1) {
 				r = m - 1;
 			} else {
 				l = m + 1;
 			}
+			//cout << l << "  " << m << "  " << r << endl;
 		}
 
 		//get the candidates
