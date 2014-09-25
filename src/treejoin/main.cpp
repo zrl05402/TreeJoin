@@ -64,7 +64,7 @@ int findOverlapNodes(vector<pair<TreeNode*, int> > &list, int n, int threshold) 
 	int ret = 0, counter = 0;
 	while (!v.empty() && ret < threshold + 1 && counter < n) {
 		sort(v.begin(), v.end(), NodeCompare);
-		for (auto & i : NM[v[v.size() - 1]]) {
+		for (auto & i : NM[v.back()]) {
 			for (auto & j : LM[i]) {
 				if (j != v[v.size() - 1])
 					NM[j].erase(i);
@@ -130,6 +130,17 @@ void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 			result.push_back(make_pair(i, j));
 		}
 
+		for (int j = 0; j < i; ++j) {
+			if (isDup.find(j) == isDup.end()) {
+				if (treeED(f[i], f[j], threshold) <= threshold) {
+					cout << i << " " << j << endl;
+					cout << f[i]->eulerString.back().first << endl;
+					cout << f[j]->eulerString.back().first << endl;
+					assert(1 == 0);
+				}
+			}
+		}
+
 		//indexing all the prefix
 		for (int j = 0; j < k; ++j) {
 			if (L.find(((list[j].first)->eulerString[list[j].second]).second) == L.end()) {
@@ -183,7 +194,7 @@ int main(int argc, char **argv) {
 		cout << "the time of String ED = " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << " ms" << endl;
 		t1 = chrono::system_clock::now();
 		for (auto & j : result2)
-			if (j.first == j.second || treeED(f[j.first], f[j.second], edThreshold) + costFunc(f[j.first]->hlabel, f[j.second]->hlabel) <= edThreshold)
+			if (j.first == j.second || treeED(f[j.first], f[j.second], edThreshold) <= edThreshold)
 				result.push_back(make_pair(j.first, j.second));
 		t2 = chrono::system_clock::now();
 		cout << "the number of the answers = " << result.size() << endl;

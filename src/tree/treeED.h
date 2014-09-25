@@ -39,8 +39,7 @@ int TED(TreeNode *f1, TreeNode *f2, int **ted, int threshold) {
 		ans[i] = new int[m];
 		memset(ans[i], -1, sizeof(int) * m);
 	}
-	dfs(f1, f2, ans, ted, 0, 0, threshold);
-	int ret = ans[0][0];
+	int ret = dfs(f1, f2, ans, ted, 0, 0, threshold);
 	for (int i = 0; i < n; ++i)
 		delete ans[i];
 	delete [] ans;
@@ -50,6 +49,9 @@ int TED(TreeNode *f1, TreeNode *f2, int **ted, int threshold) {
 
 int treeED(TreeNode *f1, TreeNode *f2, int threshold) {
 	int n = f1->sum, m = f2->sum;
+	if (threshold < costFunc(f1->hlabel, f2->hlabel))
+		return LIMIT + 1;
+	threshold -= costFunc(f1->hlabel, f2->hlabel);
 	if (abs(n - m) > threshold)
 		return LIMIT + 1;
 	int **ans = new int*[n];
@@ -62,17 +64,16 @@ int treeED(TreeNode *f1, TreeNode *f2, int threshold) {
 		ted[i] = new int[m];
 		memset(ted[i], -1, sizeof(int) * m);
 	}
-	dfs(f1, f2, ans, ted, 0, 0, threshold);
-	int ret = ans[0][0];
+	int ret = dfs(f1, f2, ans, ted, 0, 0, threshold);
 	for (int i = 0; i < n; ++i)
 		delete ans[i];
 	delete [] ans;
 	delete [] ted;
-	return ret;
+	return ret + costFunc(f1->hlabel, f2->hlabel);
 }
 
 int dfs(TreeNode *f1, TreeNode *f2, int **ans, int **ted, int sum1, int sum2, int threshold) {
-	if (f1 == NULL && f2 == NULL)
+	if (f1 == NULL || f2 == NULL)
 		return 0;
 	if (ans[sum1][sum2] != -1)
 		return ans[sum1][sum2];
