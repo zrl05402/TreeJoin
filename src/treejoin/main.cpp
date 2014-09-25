@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <queue>
 #include <cassert>
+#include <chrono>
+
 
 using namespace std;
 
@@ -164,29 +166,28 @@ int main(int argc, char **argv) {
 
 	//calcSum(tree);
 
-	for (int i = 1; i <= 15; ++i) {
+	for (int i = 1; i <= 1; ++i) {
 		int edThreshold = i;
 		vector<pair<int, int> > result1, result2, result;
-		cout << "the threshold = " << i << endl;
-		clock_t begin = clock();
+		auto t1 = chrono::system_clock::now();
 		TreeJoin(f, i, result1);
-		clock_t end = clock();
+		auto t2 = chrono::system_clock::now();
 		cout << "the result of prefix filter = " << result1.size() << endl;
-		cout << "the time of prefix filter = " << (end - begin) / CLOCKS_PER_SEC << endl;
-		begin = clock();
+		cout << "the time of prefix filter = " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << " ms" << endl;
+		t1 = chrono::system_clock::now();
 		for (auto & j : result1)
 			if (getED(f[j.first]->postOrderedString, f[j.second]->postOrderedString, edThreshold) <= edThreshold)
 				result2.push_back(make_pair(j.first, j.second));
-		end = clock();
+		t2 = chrono::system_clock::now();
 		cout << "the result of String ED = " << result2.size() << endl;
-		cout << "the time of String ED = " << (end - begin) / CLOCKS_PER_SEC << endl;
-		begin = clock();
+		cout << "the time of String ED = " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << " ms" << endl;
+		t1 = chrono::system_clock::now();
 		for (auto & j : result2)
 			if (j.first == j.second || treeED(f[j.first], f[j.second], edThreshold) + costFunc(f[j.first]->hlabel, f[j.second]->hlabel) <= edThreshold)
 				result.push_back(make_pair(j.first, j.second));
-		end = clock();
+		t2 = chrono::system_clock::now();
 		cout << "the number of the answers = " << result.size() << endl;
-		cout << "the time of TreeED = " << (end - begin) / CLOCKS_PER_SEC << endl;
+		cout << "the time of TreeED = " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << " ms" << endl;
 		cout << "-----------------------------------------------------" << endl;
 	}
 }
