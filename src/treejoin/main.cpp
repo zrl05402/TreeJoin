@@ -130,6 +130,7 @@ void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 			result.push_back(make_pair(i, j));
 		}
 
+		/*
 		for (int j = 0; j < i; ++j) {
 			if (isDup.find(j) == isDup.end()) {
 				if (treeED(f[i], f[j], threshold) <= threshold) {
@@ -140,6 +141,7 @@ void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 				}
 			}
 		}
+		*/
 
 		//indexing all the prefix
 		for (int j = 0; j < k; ++j) {
