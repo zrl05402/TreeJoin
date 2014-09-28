@@ -11,70 +11,24 @@
 #include <cassert>
 #include <chrono>
 
-
 using namespace std;
 
 unordered_map<unsigned int, int> FM;
-unordered_map<unsigned int, unordered_set<unsigned int> > NM;
-unordered_map<unsigned int, unordered_set<unsigned int> > LM;
 
 void addToMap(TreeNode *root) {
-	for (auto & i : root->eulerString)
-		FM[i.second] += 1;
+	FM[root->eulerString.back().second] += 1;
 	for (auto & i : root->children)
 		addToMap(i);
 }
 
 void addToList(vector<pair<TreeNode*, int> > &list, TreeNode *root) {
-	for (int i = 0; i < int(root->eulerString.size()); ++i)
-		list.push_back(make_pair(root, i));
+	list.push_back(make_pair(root, FM[root->eulerString.back().second]));
 	for (auto & i : root->children)
 		addToList(list, i);
 }
 
 bool FrequencyCompare(const pair<TreeNode*, int> &a, const pair<TreeNode*, int> &b) {
-	int ma = FM[((a.first)->eulerString[a.second]).second], mb = FM[((b.first)->eulerString[b.second]).second];
-	return ma == mb ? ((a.first)->eulerString[a.second]).second < ((b.first)->eulerString[b.second]).second : ma < mb;
-}
-
-bool NodeCompare(const unsigned int a, const unsigned int b) {
-	return NM[a].size() < NM[b].size();
-}
-
-void pushToMap(TreeNode *root, int step, int index) {
-	if (step < 0)
-		return;
-	NM[root->rank].insert(index);
-	LM[index].insert(root->rank);
-	for (auto & j : root->children)
-		pushToMap(j, step - 1, index);
-}
-
-int findOverlapNodes(vector<pair<TreeNode*, int> > &list, int n, int threshold) {
-	NM.clear();
-	LM.clear();
-	for (int i = 0; i < n; ++i) {
-		pushToMap(list[i].first, list[i].second, i);
-	}
-
-	vector<unsigned int> v; 
-	for (auto & i : NM)
-		v.push_back(i.first);
-
-	int ret = 0, counter = 0;
-	while (!v.empty() && ret < threshold + 1 && counter < n) {
-		sort(v.begin(), v.end(), NodeCompare);
-		for (auto & i : NM[v.back()]) {
-			for (auto & j : LM[i]) {
-				if (j != v[v.size() - 1])
-					NM[j].erase(i);
-			}
-			++counter;
-		}
-		v.pop_back();
-		++ret;
-	}
-	return ret;
+	return a.second == b.second ? (a.first)->eulerString.back().first.length() > (b.first)->eulerString.back().first.length() : a.second < b.second;
 }
 
 void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &result) {
@@ -83,47 +37,55 @@ void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 	int n = f.size();
 	unordered_map<unsigned int, vector<int> > L;
 	for (int i = 0; i < n; ++i) {
-		// nodes are less than threshold + 1
-		if (f[i]->sum < threshold + 1) {
-			for (int j = 0; j < i; ++j)
-				if (abs(int(f[j]->postOrderedString.length()) - int(f[i]->postOrderedString.length())) < threshold) {
-					result.push_back(make_pair(i, j));
-				}
-			continue;
-		}
-
-		// get the list
+		//get the list
 		vector<pair<TreeNode*, int> > list;
 		addToList(list, f[i]);
 		sort(list.begin(), list.end(), FrequencyCompare);
 
 		//get the prefix
-		int l = 1, r = int(list.size()), m = 0;
-		while (l <= r) {
-			m = (l + r) >> 1;
-			if (findOverlapNodes(list, m, threshold) >= threshold + 1) {
-				r = m - 1;
-			} else {
-				l = m + 1;
-			}
-			//cout << l << "  " << m << "  " << r << endl;
+		int m = list.size(), num = 1;
+		vector<int> flag(m, 0);
+		flag[0] = 1;
+		int k;
+		for (k = 1; k < m; ++k) {
+			if (num == threshold + 1)
+				break;
+			flag[k] = 1;
+			for (int j = 0; j < k; ++j)
+				if (list[j].first == (list[k].first)->father) {
+					if (flag[j] == 1) {
+						flag[j] = 0;
+					}
+					else {
+						++num;
+					}
+					break;
+				}
 		}
 
 		//get the candidates
 		vector<int> candidates;
-		unordered_set<int> isDup;
-		int k = l;
-		for (int j = 0; j < k; ++j) {
-			if (L.find(((list[j].first)->eulerString[list[j].second]).second) != L.end()) {
-				for (auto & l : L[((list[j].first)->eulerString[list[j].second]).second]) {
-	 				if (isDup.find(l) == isDup.end()) {
-	 					if (abs(int(f[l]->postOrderedString.length()) - int(f[i]->postOrderedString.length())) < threshold) {
-							candidates.push_back(l);
-						}
-						isDup.insert(l);
-					}
+		unordered_map<int, bool> isDup;
+		if (num < threshold + 1) {
+			for (int j = 0; j < i; ++j)
+				if (abs(int(f[j]->postOrderedString.length()) - int(f[i]->postOrderedString.length())) < threshold) {
+					candidates.push_back(j);
 				}
-			}
+		}
+		else {
+			for (int j = 0; j < k; ++j)
+				//if (flag[j] == 1) {
+					if (L.find((list[j].first)->eulerString.back().second) != L.end()) {
+						for (auto & l : L[(list[j].first)->eulerString.back().second]) {
+	 						if (isDup.find(l) == isDup.end()) {
+	 							if (abs(int(f[l]->postOrderedString.length()) - int(f[i]->postOrderedString.length())) < threshold) {
+									candidates.push_back(l);
+								}
+								isDup[l] = true;
+							}
+						}
+					}
+				//}
 		}
 		for (auto & j : candidates) {
 			result.push_back(make_pair(i, j));
@@ -131,11 +93,11 @@ void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 
 		//indexing all the prefix
 		for (int j = 0; j < k; ++j) {
-			if (L.find(((list[j].first)->eulerString[list[j].second]).second) == L.end()) {
+			if (L.find((list[j].first)->eulerString.back().second) == L.end()) {
 				vector<int> temp;
-				L[((list[j].first)->eulerString[list[j].second]).second] = temp;
+				L[(list[j].first)->eulerString.back().second] = temp;
 			}
-			L[((list[j].first)->eulerString[list[j].second]).second].push_back(i);
+			L[(list[j].first)->eulerString.back().second].push_back(i);
 		}
 	}
 }
@@ -165,7 +127,7 @@ int main(int argc, char **argv) {
 
 	//calcSum(tree);
 
-	for (int i = 1; i <= 1; ++i) {
+	for (int i = 1; i <= 10; ++i) {
 		int edThreshold = i;
 		vector<pair<int, int> > result1, result2, result;
 		auto t1 = chrono::system_clock::now();
