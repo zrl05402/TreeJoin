@@ -15,6 +15,7 @@
 using namespace std;
 
 unordered_map<unsigned int, int> FM;
+vector<vector<pair<TreeNode*, int> > > PL;
 unordered_map<unsigned int, unordered_set<unsigned int> > NM;
 unordered_map<unsigned int, unordered_set<unsigned int> > LM;
 
@@ -93,15 +94,7 @@ void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 		}
 
 		// get the list
-		vector<pair<TreeNode*, int> > list;
-		addToList(list, f[i]);
-		/*
-		for (int j = 0; j < list.size(); ++j) {
-			cout << ((list[j].first)->eulerString[list[j].second]).first << endl;
-			cout << ((list[j].first)->eulerString[list[j].second]).second << endl;
-		}
-		*/
-		sort(list.begin(), list.end(), FrequencyCompare);
+		vector<pair<TreeNode*, int> > &list = PL[i];
 
 		//get the prefix
 		int l = 1, r = int(list.size()), m = 0;
@@ -112,21 +105,15 @@ void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 			} else {
 				l = m + 1;
 			}
-			//cout << l << "  " << m << "  " << r << endl;
 		}
 
 		//get the candidates
 		vector<int> candidates;
 		unordered_set<int> isDup;
+		sum_k += l;
 		int k = l;
-		sum_k += k;
 		cout << i << endl;
-		/*
-		for (int j = 0; j < 2; ++j) {
-			cout << ((list[j].first)->eulerString[list[j].second]).first << endl;
-			cout << ((list[j].first)->eulerString[list[j].second]).second << endl;
-		}
-		*/
+
 		for (int j = 0; j < k; ++j) {
 			if (L.find(((list[j].first)->eulerString[list[j].second]).second) != L.end()) {
 				for (auto & l : L[((list[j].first)->eulerString[list[j].second]).second]) {
@@ -151,9 +138,8 @@ void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 			}
 			L[((list[j].first)->eulerString[list[j].second]).second].push_back(i);
 		}
-
-		//assert(1 == 0);
 	}
+	cout << (double)sum_k / n << endl;
 }
 
 int main(int argc, char **argv) {
@@ -171,17 +157,20 @@ int main(int argc, char **argv) {
 
 	vector<TreeNode*> f;
 	int totalSum = 0;
+	PL.resize(totalNum);
 	for (int i = 0; i < totalNum; ++i) {
 		f.push_back(root->children[i]);
 		root->children[i]->calc();
 		totalSum += root->children[i]->sum;
 		addToMap(f[i]);
+		addToList(PL[i], f[i]);
+		sort(PL[i].begin(), PL[i].end(), FrequencyCompare);
 	}
 	cout << "totalSum = " << totalSum << endl;
 
 	//calcSum(tree);
 
-	for (int i = 5; i <= 5; ++i) {
+	for (int i = 10; i <= 10; ++i) {
 		int edThreshold = i;
 		vector<pair<int, int> > result1, result2, result;
 		auto t1 = chrono::system_clock::now();
