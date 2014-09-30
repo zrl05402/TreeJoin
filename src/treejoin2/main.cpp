@@ -32,7 +32,6 @@ bool FrequencyCompare(const pair<TreeNode*, int> &a, const pair<TreeNode*, int> 
 }
 
 void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &result) {
-	FM.clear();
 	result.clear();
 	int n = f.size();
 	unordered_map<unsigned int, vector<int> > L;
@@ -127,7 +126,7 @@ int main(int argc, char **argv) {
 
 	//calcSum(tree);
 
-	for (int i = 1; i <= 10; ++i) {
+	for (int i = 5; i <= 5; ++i) {
 		int edThreshold = i;
 		vector<pair<int, int> > result1, result2, result;
 		auto t1 = chrono::system_clock::now();

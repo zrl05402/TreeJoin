@@ -78,10 +78,10 @@ int findOverlapNodes(vector<pair<TreeNode*, int> > &list, int n, int threshold) 
 }
 
 void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &result) {
-	FM.clear();
 	result.clear();
 	int n = f.size();
 	unordered_map<unsigned int, vector<int> > L;
+	long long sum_k = 0;
 	for (int i = 0; i < n; ++i) {
 		// nodes are less than threshold + 1
 		if (f[i]->sum < threshold + 1) {
@@ -95,6 +95,12 @@ void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 		// get the list
 		vector<pair<TreeNode*, int> > list;
 		addToList(list, f[i]);
+		/*
+		for (int j = 0; j < list.size(); ++j) {
+			cout << ((list[j].first)->eulerString[list[j].second]).first << endl;
+			cout << ((list[j].first)->eulerString[list[j].second]).second << endl;
+		}
+		*/
 		sort(list.begin(), list.end(), FrequencyCompare);
 
 		//get the prefix
@@ -113,6 +119,14 @@ void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 		vector<int> candidates;
 		unordered_set<int> isDup;
 		int k = l;
+		sum_k += k;
+		cout << i << endl;
+		/*
+		for (int j = 0; j < 2; ++j) {
+			cout << ((list[j].first)->eulerString[list[j].second]).first << endl;
+			cout << ((list[j].first)->eulerString[list[j].second]).second << endl;
+		}
+		*/
 		for (int j = 0; j < k; ++j) {
 			if (L.find(((list[j].first)->eulerString[list[j].second]).second) != L.end()) {
 				for (auto & l : L[((list[j].first)->eulerString[list[j].second]).second]) {
@@ -137,6 +151,8 @@ void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 			}
 			L[((list[j].first)->eulerString[list[j].second]).second].push_back(i);
 		}
+
+		//assert(1 == 0);
 	}
 }
 
@@ -165,7 +181,7 @@ int main(int argc, char **argv) {
 
 	//calcSum(tree);
 
-	for (int i = 1; i <= 1; ++i) {
+	for (int i = 5; i <= 5; ++i) {
 		int edThreshold = i;
 		vector<pair<int, int> > result1, result2, result;
 		auto t1 = chrono::system_clock::now();
