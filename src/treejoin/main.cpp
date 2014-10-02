@@ -61,7 +61,6 @@ int findOverlapNodes(vector<pair<TreeNode*, int> > &list, int n, int threshold) 
 	vector<unsigned int> v; 
 	for (auto & i : NM)
 		v.push_back(i.first);
-
 	int ret = 0, counter = 0;
 	while (!v.empty() && ret < threshold + 1 && counter < n) {
 		sort(v.begin(), v.end(), NodeCompare);
@@ -75,6 +74,7 @@ int findOverlapNodes(vector<pair<TreeNode*, int> > &list, int n, int threshold) 
 		v.pop_back();
 		++ret;
 	}
+
 	return ret;
 }
 
@@ -97,6 +97,13 @@ void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 		vector<pair<TreeNode*, int> > &list = PL[i];
 
 		//get the prefix
+		int l = 1;
+		for (; l <= int(list.size()); ++l)
+			if (findOverlapNodes(list, l, threshold) >= threshold + 1) {
+				break;
+			}
+		// binary method
+		/*
 		int l = 1, r = int(list.size()), m = 0;
 		while (l <= r) {
 			m = (l + r) >> 1;
@@ -106,13 +113,14 @@ void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 				l = m + 1;
 			}
 		}
+		*/
 
 		//get the candidates
 		vector<int> candidates;
 		unordered_set<int> isDup;
 		sum_k += l;
 		int k = l;
-		cout << i << endl;
+		cout << i << "  " << l << endl;
 
 		for (int j = 0; j < k; ++j) {
 			if (L.find(((list[j].first)->eulerString[list[j].second]).second) != L.end()) {
@@ -132,10 +140,6 @@ void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 
 		//indexing all the prefix
 		for (int j = 0; j < k; ++j) {
-			if (L.find(((list[j].first)->eulerString[list[j].second]).second) == L.end()) {
-				vector<int> temp;
-				L[((list[j].first)->eulerString[list[j].second]).second] = temp;
-			}
 			L[((list[j].first)->eulerString[list[j].second]).second].push_back(i);
 		}
 	}

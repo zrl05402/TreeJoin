@@ -1,5 +1,5 @@
 CXX=g++-4.8
-CXXFLAGS=-std=c++11 -pg -Wall -O3 -g -MMD -MP
+CXXFLAGS=-std=c++11 -Wall -O3 -g -MMD -MP
 TARGET=main
 
 SRC=$(shell ls *.cpp)
