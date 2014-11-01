@@ -66,7 +66,7 @@ inline void pushToMap(TreeNode *root, int step, int index) {
 
 inline int findOverlapNodes(vector<pair<TreeNode*, int> > &list, int n, int threshold) {
 	min_rank = 1000000000;
-	max_rank = -1;
+	max_rank = 0;
 	for (int i = 0; i < n; ++i) {
 		calcRank(list[i].first, list[i].second, i);
 	}
@@ -103,6 +103,20 @@ inline int findOverlapNodes(vector<pair<TreeNode*, int> > &list, int n, int thre
 		++ret;
 	}
 
+	min_rank = 1000000000;
+	max_rank = 0;
+	for (int i = 0; i < n; ++i) {
+		calcRank(list[i].first, list[i].second, i);
+	}
+	GM.clear();
+	GM.resize(n);
+	V.clear();
+	V.resize(max_rank - min_rank + 1);
+	for (int i = 0; i < n; ++i) {
+		GM[i].resize(max_rank - min_rank + 1);
+		//pushToMap(list[i].first, list[i].second, i);
+	}
+
 	return ret;
 }
 
@@ -126,29 +140,17 @@ inline void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> 
 
 		//get the prefix
 		// linear method
-		int l = 1;
-		/*
-		for (auto & j : list) {
-
+		min_rank = 1000000000;
+		max_rank = 0;
+		for (int j = 0; j < int(list.size()); ++j) {
+			calcRank(list[i].first, list[i].second, j);
 		}
-		*/
+		int l = 1;
 		for (; l <= int(list.size()); ++l)
 			if (findOverlapNodes(list, l, threshold) >= threshold + 1) {
 				break;
 			}
-		/*
-		// binary method
-		int l = 1, r = int(list.size()), m = 0;
-		while (l <= r) {
-			m = (l + r) >> 1;
-			if (findOverlapNodes(list, m, threshold) >= threshold + 1) {
-				r = m - 1;
-			} else {
-				l = m + 1;
-			}
-		}
-		*/
-
+			
 		//get the candidates
 		vector<int> candidates;
 		unordered_set<int> isDup;
@@ -208,7 +210,7 @@ int main(int argc, char **argv) {
 
 	//calcSum(tree);
 
-	for (int i = 1; i <= 1; ++i) {
+	for (int i = 10; i <= 10; ++i) {
 		int edThreshold = i;
 		vector<pair<int, int> > result1, result2, result;
 		auto t1 = chrono::system_clock::now();

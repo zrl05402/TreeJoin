@@ -142,7 +142,7 @@ int main(int argc, char **argv) {
 	}
 	cout << "totalSum = " << totalSum << endl;
 
-	for (int i = 1; i <= 15; ++i) {
+	for (int i = 10; i <= 10; ++i) {
 		int edThreshold = i;
 		vector<pair<int, int> > result1, result2, result;
 		cout << "the threshold = " << i << endl;

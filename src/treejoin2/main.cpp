@@ -126,7 +126,7 @@ int main(int argc, char **argv) {
 
 	//calcSum(tree);
 
-	for (int i = 5; i <= 5; ++i) {
+	for (int i = 10; i <= 10; ++i) {
 		int edThreshold = i;
 		vector<pair<int, int> > result1, result2, result;
 		auto t1 = chrono::system_clock::now();
