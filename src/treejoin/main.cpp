@@ -16,12 +16,7 @@ using namespace std;
 
 unordered_map<unsigned int, int> FM;
 vector<vector<pair<TreeNode*, int> > > PL;
-vector<vector<unsigned int> > GM;
-vector<vector<unsigned int> > BGM;
-vector<vector<unsigned int> > TM;
-vector<vector<unsigned int> > NM;
-vector<unsigned int> V;
-vector<unsigned int> BV;
+vector<bool> NS;
 
 unsigned int min_rank, max_rank;
 
@@ -44,11 +39,7 @@ inline bool FrequencyCompare(const pair<TreeNode*, int> &a, const pair<TreeNode*
 	return ma == mb ? ((a.first)->eulerString[a.second]).second < ((b.first)->eulerString[b.second]).second : ma < mb;
 }
 
-bool NodeCompare(const unsigned int a, const unsigned int b) {
-	return BV[a] < BV[b];
-}
-
-inline void calcRank(TreeNode *root, int step, int index) {
+void calcRank(TreeNode *root, int step, int index) {
 	if (step < 0)
 		return;
 	min_rank = min(root->rank, min_rank);
@@ -57,94 +48,35 @@ inline void calcRank(TreeNode *root, int step, int index) {
 		calcRank(j, step - 1, index);
 }
 
-inline void pushToMap(TreeNode *root, int step, int index) {
+bool pushToMap(TreeNode *root, int &node, int step, int index) {
 	if (step < 0)
-		return;
-	if (GM[index][root->rank - min_rank] == 0) {
-		GM[index][root->rank - min_rank] = 1;
-		V[root->rank - min_rank] += 1;
+		return true;
+	if (NS[root->rank - min_rank]) {
+		return false;
+	} else {
+		node = root->rank - min_rank;
 	}
-	for (auto & j : root->children)
-		pushToMap(j, step - 1, index);
+	for (auto & j : root->children) {
+		if (!pushToMap(j, node, step - 1, index)) {
+			return false;
+		}
+	}
+	return true;
 }
 
-inline int findOverlapNodes(vector<pair<TreeNode*, int> > &list, int n, int threshold) {
-	GM[n - 1].resize(max_rank - min_rank + 1);
-	pushToMap(list[n - 1].first, list[n - 1].second, n - 1);
-	for (int j = 0; j <= int(max_rank - min_rank); ++j) {
-		if (GM[n - 1][j] == 1) {
-			TM[n - 1].push_back(j);
-			NM[j].push_back(n - 1);
-		}
-	}
-
-	/*
-
-	BGM = GM;
-	BV = V;
-
-	vector<unsigned int> v;
-	v.reserve(max_rank - min_rank + 1);
-	for (int i = 0; i <= int(max_rank - min_rank); ++i)
-		if (BV[i] > 0)
-			v.push_back(i);
-	int ret = 0, counter = 0;
-	while (!v.empty() && ret < threshold + 1 && counter < n) {
-		sort(v.begin(), v.end(), NodeCompare);
-		for (int i = 0; i < n; ++i) {
-			if (BGM[i][v.back()] > 0) {
-				BGM[i][v.back()] = 0;
-				for (int j = 0; j <= int(max_rank - min_rank); ++j) {
-					if (BGM[i][j] == 1) {
-						BGM[i][j] = 0;
-						BV[j] -= 1;
-					}
-				}
-				++counter;
-			}
-		}
-		v.pop_back();
-		++ret;
-	}
-	*/
-
-	//{
-		BGM = GM;
-		BV = V;
-		vector<unsigned int> v;
-		v.reserve(max_rank - min_rank + 1);
-		for (int i = 0; i <= int(max_rank - min_rank); ++i)
-			if (BV[i] > 0)
-				v.push_back(i);
-
-		int ret = 0, counter = 0;
-		while (!v.empty() && ret < threshold + 1 && counter < n) {
-			sort(v.begin(), v.end(), NodeCompare);
-			for (auto i : NM[v.back()]) {
-				if (BGM[i][v.back()] > 0) {
-					BGM[i][v.back()] = 0;
-					for (auto j : TM[i]) {
-						if (BGM[i][j] == 1) {
-							BGM[i][j] = 0;
-							BV[j] -= 1;
-						}
-					}
-					++counter;
-				}
-			}
-			v.pop_back();
-			++ret;
-		}
-	//}
-
-	return ret;
+int findOverlapNodes(vector<pair<TreeNode*, int> > &list, int &counter, int n, int threshold) {
+	int node = 0;
+	if (!pushToMap(list[n - 1].first, node, list[n - 1].second, n - 1))
+		return threshold;
+	NS[node] = true;
+	++counter;
+	return counter;
 }
 
-inline void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &result) {
+void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &result) {
 	result.clear();
 	int n = f.size();
 	unordered_map<unsigned int, vector<int> > L;
-	long long sum_k = 0;
 	for (int i = 0; i < n; ++i) {
 		// nodes are less than threshold + 1
 		if (f[i]->sum < threshold + 1) {
@@ -165,33 +97,20 @@ inline void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> 
 		for (int j = 0; j < int(list.size()); ++j) {
 			calcRank(list[j].first, list[j].second, j);
 		}
-		GM.clear();
-		GM.resize(list.size());
-		TM.clear();
-		TM.resize(list.size());
-		NM.clear();
-		NM.resize(max_rank - min_rank + 1);
-		V.clear();
-		V.resize(max_rank - min_rank + 1);
-		//cout << max_rank - min_rank + 1 << endl;
+		NS.clear();
+		NS.resize(max_rank - min_rank + 1);
 
-		/*
-		int l = 1;
+		int l = 1, counter = 0;
 		for (; l <= int(list.size()); ++l)
-			if (findOverlapNodes(list, l, threshold) >= threshold + 1) {
+			if (findOverlapNodes(list, counter, l, threshold) >= threshold + 1) {
 				break;
 			}
-		*/
-		int l = min(25, int(list.size()));
 
 		//get the candidates
 		vector<int> candidates;
 		unordered_set<int> isDup;
-		sum_k += l;
-		int k = l;
-		cout << i << "  " << l << endl;
 
-		for (int j = 0; j < k; ++j) {
+		for (int j = 0; j < l; ++j) {
 			if (L.find(((list[j].first)->eulerString[list[j].second]).second) != L.end()) {
 				for (auto & l : L[((list[j].first)->eulerString[list[j].second]).second]) {
 	 				if (isDup.find(l) == isDup.end()) {
@@ -208,11 +127,10 @@ inline void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> 
 		}
 
 		//indexing all the prefix
-		for (int j = 0; j < k; ++j) {
+		for (int j = 0; j < l; ++j) {
 			L[((list[j].first)->eulerString[list[j].second]).second].push_back(i);
 		}
 	}
-	cout << (double)sum_k / n << endl;
 }
 
 int main(int argc, char **argv) {
@@ -243,7 +161,7 @@ int main(int argc, char **argv) {
 
 	//calcSum(tree);
 
-	for (int i = 10; i <= 10; ++i) {
+	for (int i = 1; i <= 20; ++i) {
 		int edThreshold = i;
 		vector<pair<int, int> > result1, result2, result;
 		auto t1 = chrono::system_clock::now();
