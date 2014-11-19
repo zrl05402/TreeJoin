@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <algorithm>
+#include <chrono>
 
 using namespace std;
 
@@ -70,7 +71,7 @@ void passJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 		vector<int> candidates;
 		unordered_map<int, bool> isDup;
 		if (num < threshold + 1) {
-			for (int j = 0; j <= i; ++j)
+			for (int j = 0; j < i; ++j)
 				candidates.push_back(j);
 		}
 		else {
@@ -88,7 +89,6 @@ void passJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 					}
 				}
 			//}
-			candidates.push_back(i);
 		}
 		for (auto & j : candidates) {
 			result.push_back(make_pair(i, j));
@@ -142,29 +142,30 @@ int main(int argc, char **argv) {
 	}
 	cout << "totalSum = " << totalSum << endl;
 
-	for (int i = 10; i <= 10; ++i) {
+	for (int i = 1; i <= 15; ++i) {
 		int edThreshold = i;
 		vector<pair<int, int> > result1, result2, result;
-		cout << "the threshold = " << i << endl;
-		clock_t begin = clock()	;
+		auto t1 = chrono::system_clock::now();
 		passJoin(f, edThreshold, result1);
-		clock_t end = clock();
+		auto t2 = chrono::system_clock::now();
 		cout << "the result of PassJoin = " << result1.size() << endl;
-		cout << "the time of PassJoin = " << (end - begin) / CLOCKS_PER_SEC << endl;
-		begin = clock();
+		cout << "the time of PassJoin = " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << " ms" << endl;
+		t1 = chrono::system_clock::now();
 		for (auto & j : result1)
 			if (getED(f[j.first]->postOrderedString, f[j.second]->postOrderedString, edThreshold) <= edThreshold)
 				result2.push_back(make_pair(j.first, j.second));
-		end = clock();
+		t2 = chrono::system_clock::now();
 		cout << "the result of String ED = " << result2.size() << endl;
-		cout << "the time of String ED = " << (end - begin) / CLOCKS_PER_SEC << endl;
-		begin = clock();
+		cout << "the time of String ED = " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << " ms" << endl;
+		t1 = chrono::system_clock::now();
 		for (auto & j : result2)
-			if (j.first == j.second || treeED(f[j.first], f[j.second], edThreshold) + costFunc(f[j.first]->hlabel, f[j.second]->hlabel) <= edThreshold)
+			if (treeED(f[j.first], f[j.second], edThreshold) <= edThreshold) {
 				result.push_back(make_pair(j.first, j.second));
-		end = clock();
+				//cout << j.first << " " << j.second << endl;		
+			}
+		t2 = chrono::system_clock::now();
 		cout << "the number of the answers = " << result.size() << endl;
-		cout << "the time of TreeED = " << (end - begin) / CLOCKS_PER_SEC << endl;
+		cout << "the time of TreeED = " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << " ms" << endl;
 		cout << "-----------------------------------------------------" << endl;
 	
 	}
