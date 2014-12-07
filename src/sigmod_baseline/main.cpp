@@ -15,6 +15,7 @@ using namespace std;
 unordered_map<string, int> M;
 
 int Q = 2;
+int K = 10;
 
 void addToMap(TreeNode *root)
 {
@@ -40,81 +41,34 @@ void addToList(vector<pair<string, int> > &list, TreeNode *root) {
 	}
 }
 
-void passJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &result) {
+void passJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &result, vector<pair<int, int> > &result2) {
 	result.clear();
 	int n = f.size();
-	unordered_map<string, vector<int> > L;
-	for(int i = 0; i < n; ++i) {
-		//get the list
-		vector<pair<string, int> > list;
-		addToList(list, f[i]);
+    vector<TreeNode*> ref;
+    for (int i = 0; i < K; ++i)
+      ref.push_back(f[i]);
+    vector<int> v(n, vector<int>(K));
+    for (int i = 0; i < n; ++i)
+      for (int j = 0; j < K; ++j)
+        v[i][j] = treeED(f[i], ref[j]);
 
-		//get the prefix
-		int m = list.size(), num = 0;
-		vector<int> flag(max(m, 1), 0);
-		flag[0] = 1;
-		int k;
-		for (k = 0; k < m; ++k) {
-			if (num == int(threshold) + 1)
-				break;
-			flag[k] = 1;
-			for (int j = 0; j < k; ++j)
-				if (flag[j] == 1 && abs(list[k].second - list[j].second) < Q) {
-					flag[k] = 0;
-					break;
-				}
-			if (flag[k] == 1)
-				++ num;
+    for (int i = 0; i < n; ++i) {
+      vector<int> candidates;
+      for (int j = 0; j < i; ++j) {
+        int l = 0, u = threshold + 1;
+        for (int k = 0; k < K; ++k) {
+          l = max(abs(v[i][k] - v[j][k]), l);
+          u = min(v[i][k] + v[j][k], u);
+        }
+        if (u <= threshold) {
+          result2.push_back(make_pair(i, j));
+        } else if (l <= threshold) {
+		  candidates.push_back(j);
 		}
-
-		//get the candidates
-		vector<int> candidates;
-		unordered_map<int, bool> isDup;
-		if (num < threshold + 1) {
-			for (int j = 0; j < i; ++j)
-				candidates.push_back(j);
-		}
-		else {
-			for (int j = 0; j < k; ++j)
-			//if (flag[j] == 1) {
-				if (L.find(list[j].first) != L.end()) {
-					for (auto & l : L[list[j].first]) {
-						//some pruning techniques
-						//PRUNING 1
- 						if (isDup.find(l) == isDup.end()) {
-							candidates.push_back(l);
-							isDup[l] = true;
-						}
-						//PRUNING 2
-					}
-				}
-			//}
-		}
-		for (auto & j : candidates) {
-			result.push_back(make_pair(i, j));
-		}
-
-		//verification
-		/*
-		for (auto & j : candidates) {
-			int distance = getED(m_str1[j], m_str1[i], threshold);
-			if (distance <= int(threshold)) {
-				rr.id1 = i;
-				rr.id2 = j;
-				rr.s = distance;
-				resultED.push_back(rr);
-			}
-		}
-		*/
-
-		//indexing all the prefix
-		for (int j = 0; j < k; ++j) {
-			if (L.find(list[j].first) == L.end()) {
-				vector<int> temp;
-				L[list[j].first] = temp;
-			}
-			L[list[j].first].push_back(i);
-		}
+      }
+      for (auto & j : candidates) {
+	    result.push_back(make_pair(i, j));
+	  } 
 	}
 	//sort(result.begin(), result.end(), ResultCompare);
 }
@@ -146,7 +100,7 @@ int main(int argc, char **argv) {
 		int edThreshold = i;
 		vector<pair<int, int> > result1, result2, result;
 		auto t1 = chrono::system_clock::now();
-		passJoin(f, edThreshold, result1);
+		passJoin(f, edThreshold, result1, result);
 		auto t2 = chrono::system_clock::now();
 		cout << "the result of PassJoin = " << result1.size() << endl;
 		cout << "the time of PassJoin = " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << " ms" << endl;
