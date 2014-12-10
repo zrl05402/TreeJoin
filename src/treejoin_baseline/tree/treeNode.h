@@ -31,35 +31,6 @@ public:
 	~TreeNode() {
 	}
 
-	TreeNode *read(ifstream &fin, int &no) {
-		string tag;
-		getline(fin, tag);
-		TreeNode *ret = new TreeNode(tag);
-		int n;
-		fin >> n;
-		getline(fin, tag);
-		for (int i = 0; i < n; ++i)
-			ret->insertChild(read(fin, no));
-		for (auto & i : ret->children)
-			i->father = ret;
-		return ret;
-	}
-
-	void readFile(char *filename, int &no) {
-		ifstream fin(filename);
-		string tag;
-		getline(fin, tag);
-		label = tag;
-		int n;
-		fin >> n;
-		getline(fin, tag);
-		for (int i = 0; i < n; ++i) {
-			insertChild(read(fin, no));
-		}
-		for (auto & i : children)
-			i->father = this;
-	}
-
 	bool insertChild(TreeNode *c) {
 		children.push_back(c);
 		return true;
@@ -119,5 +90,28 @@ public:
 		calcEulerString();
 	}
 };
+
+TreeNode *read(ifstream &fin) {
+	string tag;
+	getline(fin, tag);
+	TreeNode *ret = new TreeNode(tag);
+	getline(fin, tag);
+	int n = atoi(tag.c_str());
+	if (n > 0) {
+		for (int i = 0; i < n; ++i)
+			ret->insertChild(read(fin));
+	} else {
+		getline(fin, tag);
+		ret->insertChild(new TreeNode(tag));
+	}
+	for (auto & i : ret->children)
+		i->father = ret;
+	return ret;
+}
+
+TreeNode* readFile(char *filename) {
+	ifstream fin(filename);
+	return read(fin);
+}
 
 #endif

@@ -7,6 +7,8 @@
 #include <unordered_map>
 #include <algorithm>
 #include <cassert>
+#include <chrono>
+#include <limits.h>
 
 using namespace std;
 
@@ -37,6 +39,7 @@ void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 	int n = f.size();
 	unordered_map<string, vector<int> > L;
 	vector<int> disjoin(n, 0);
+	long long sum_k = 0;
 	for (int i = 0; i < n; ++i) {
 		//get the list
 		vector<pair<TreeNode*, int> > list;
@@ -68,12 +71,10 @@ void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 		vector<int> candidates;
 		unordered_map<int, bool> isDup;
 		if (num < threshold + 1) {
-			/*
-			for (int j = 0; j <= i; ++j)
-				if (disjoin[j] == 0 && abs(int(f[j]->postString.length()) - int(f[i]->postString.length())) < threshold) {
+			for (int j = 0; j < i; ++j)
+				if (disjoin[j] == 0 && abs(int(f[j]->postOrderedString.length()) - int(f[i]->postOrderedString.length())) < threshold) {
 					candidates.push_back(j);
 				}
-			*/
 		}
 		else {
 			disjoin[i] = 1;
@@ -93,12 +94,12 @@ void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 						}
 					}
 				//}
-			candidates.push_back(i);
 		}
 		for (auto & j : candidates) {
 			result.push_back(make_pair(i, j));
 		}
 
+		sum_k += k;
 		//verification
 		/*
 		for (auto & j : candidates) {
@@ -119,6 +120,7 @@ void TreeJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
 			L[(list[j].first)->eulerString].push_back(i);
 		}
 	}
+	cout << "the length of prefix = " << (double)sum_k / n << endl;
 	//sort(result.begin(), result.end(), ResultCompare);
 }
 
@@ -129,9 +131,7 @@ int main(int argc, char **argv) {
 		return 0;
 	}
 	cout << "reading..." << endl;
-	TreeNode *tree = new TreeNode();
-	int no = 1;
-	tree->readFile(argv[1], no);
+	TreeNode *tree = readFile(argv[1]);
 	cout << "reading finished" << endl;
 
 	int totalNum = generatePostOrderedString(tree, "strings.txt");
@@ -149,30 +149,31 @@ int main(int argc, char **argv) {
 
 	//calcSum(tree);
 
+	int thres = atoi(argv[2]);
 	
-	for (int i = 1; i <= 15; ++i) {
+	for (int i = thres; i <= thres; ++i) {
 		int edThreshold = i;
 		vector<pair<int, int> > result1, result2, result;
 		cout << "the threshold = " << i << endl;
-		clock_t begin = clock();
+		auto t1 = chrono::system_clock::now();
 		TreeJoin(f, i, result1);
-		clock_t end = clock();
+		auto t2 = chrono::system_clock::now();
 		cout << "the result of prefix filter = " << result1.size() << endl;
-		cout << "the time of prefix filter = " << (end - begin) / CLOCKS_PER_SEC << endl;
-		begin = clock();
+		cout << "the time of prefix filter = " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << " ms" << endl;
+		t1 = chrono::system_clock::now();
 		for (auto & j : result1)
 			if (getED(f[j.first]->postOrderedString, f[j.second]->postOrderedString, edThreshold) <= edThreshold)
 				result2.push_back(make_pair(j.first, j.second));
-		end = clock();
-		cout << "the result of String ED = " << result2.size() << endl;
-		cout << "the time of String ED = " << (end - begin) / CLOCKS_PER_SEC << endl;
-		begin = clock();
+		//t2 = chrono::system_clock::now();
+		//cout << "the result of String ED = " << result2.size() << endl;
+		//cout << "the time of String ED = " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << " ms" << endl;
+		//t1 = chrono::system_clock::now();
 		for (auto & j : result2)
-			if (j.first == j.second || treeED(f[j.first], f[j.second], edThreshold) + costFunc(f[j.first]->hlabel, f[j.second]->hlabel) <= edThreshold)
+			if (treeED(f[j.first], f[j.second], edThreshold) <= edThreshold)
 				result.push_back(make_pair(j.first, j.second));
-		end = clock();
+		t2 = chrono::system_clock::now();
 		cout << "the number of the answers = " << result.size() << endl;
-		cout << "the time of TreeED = " << (end - begin) / CLOCKS_PER_SEC << endl;
+		cout << "the time of TreeED = " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << " ms" << endl;
 		cout << "-----------------------------------------------------" << endl;
 	}
 }

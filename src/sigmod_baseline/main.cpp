@@ -49,9 +49,10 @@ void passJoin(vector<TreeNode*> &f, int threshold, vector<pair<int, int> > &resu
     for (int i = 0; i < K; ++i)
       ref.push_back(f[i]);
     vector<vector<int> > v(n, vector<int>(K));
-    for (int i = 0; i< n; ++i)
+    for (int i = 0; i < n; ++i)
       for (int j = 0; j < K; ++j)
-        v[i][j] = treeED(f[i], ref[j], threshold + 1);
+	if (i != j)
+        	v[i][j] = treeED(f[i], ref[j], threshold);
     for(int i = 0; i < n; ++i) {
         //get the list
         vector<pair<string, int> > list;
@@ -160,7 +161,9 @@ int main(int argc, char **argv) {
     }
     cout << "totalSum = " << totalSum << endl;
     
-    for (int i = 1; i <= 15; ++i) {
+    int thres = atoi(argv[2]);
+    
+    for (int i = thres; i <= thres; ++i) {
         int edThreshold = i;
         vector<pair<int, int> > result1, result2, result;
         auto t1 = chrono::system_clock::now();
@@ -172,10 +175,10 @@ int main(int argc, char **argv) {
         for (auto & j : result1)
             if (getED(f[j.first]->postOrderedString, f[j.second]->postOrderedString, edThreshold) <= edThreshold)
                 result2.push_back(make_pair(j.first, j.second));
-        t2 = chrono::system_clock::now();
-        cout << "the result of String ED = " << result2.size() << endl;
-        cout << "the time of String ED = " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << " ms" << endl;
-        t1 = chrono::system_clock::now();
+        //t2 = chrono::system_clock::now();
+        //cout << "the result of String ED = " << result2.size() << endl;
+        //cout << "the time of String ED = " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << " ms" << endl;
+        //t1 = chrono::system_clock::now();
         for (auto & j : result2)
             if (treeED(f[j.first], f[j.second], edThreshold) <= edThreshold) {
                 result.push_back(make_pair(j.first, j.second));

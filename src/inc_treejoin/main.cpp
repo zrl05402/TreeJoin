@@ -168,7 +168,9 @@ int main(int argc, char **argv) {
 
 	//calcSum(tree);
 
-	for (int i = 1; i <= 15; ++i) {
+	int thres = atoi(argv[2]);
+
+	for (int i = thres; i <= thres; ++i) {
 		int edThreshold = i;
 		vector<pair<int, int> > result1, result2, result;
 		auto t1 = chrono::system_clock::now();
@@ -180,10 +182,10 @@ int main(int argc, char **argv) {
 		for (auto & j : result1)
 			if (getED(f[j.first]->postOrderedString, f[j.second]->postOrderedString, edThreshold) <= edThreshold)
 				result2.push_back(make_pair(j.first, j.second));
-		t2 = chrono::system_clock::now();
-		cout << "the result of String ED = " << result2.size() << endl;
-		cout << "the time of String ED = " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << " ms" << endl;
-		t1 = chrono::system_clock::now();
+		//t2 = chrono::system_clock::now();
+		//cout << "the result of String ED = " << result2.size() << endl;
+		//cout << "the time of String ED = " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << " ms" << endl;
+		//t1 = chrono::system_clock::now();
 		for (auto & j : result2)
 			if (treeED(f[j.first], f[j.second], edThreshold) <= edThreshold) {
 				result.push_back(make_pair(j.first, j.second));
